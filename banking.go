@@ -5,6 +5,7 @@ import(
   "fmt"
   "strconv"
   "strings"
+  "time"
 )
 
 type ba struct{
@@ -100,6 +101,20 @@ func main(){
         add_subtract(obj,subtracter)
       case "3\n":
         info(obj)
+      case "4\n":
+        pay:=bufio.NewReader(os.Stdin)
+
+        fmt.Println("What company Should this be payed too?")
+        payCompany, err:=pay.ReadString('\n')
+        payCompany,err = "", nil
+        company:="subtract"
+        add_subtract(obj,company)
+      case "5\n":
+        fmt.Println("Bank of America is experiencing technical difficulties right now...")
+        // 2 seconds
+        time.Sleep(1500000000)
+        continue
+
       case "6\n":
         os.Exit(0)
       }
