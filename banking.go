@@ -1,5 +1,4 @@
 package main
-
 import(
   "bufio"
   "os"
@@ -10,11 +9,16 @@ import(
 
 type ba struct{
   Balance int
-  Payments[] string
+  History[] string
   Name string
 
-
 }
+func info(bank *ba){
+  fmt.Println(bank.Name)
+  fmt.Println("Balance: ", bank.Balance)
+  fmt.Println("History: ", bank.History)
+}
+
 func login()*ba{
   for{
     log_in:=bufio.NewReader(os.Stdin)
@@ -46,7 +50,7 @@ func withdrawal(bank *ba, money int)int{
 
 func add_subtract(object *ba, addSubtract string){
   add:=bufio.NewReader(os.Stdin)
-  fmt.Println("How much money should we ", addSubtract)
+  fmt.Println("How much money should we", addSubtract)
   depo,err:=add.ReadString('\n')
   if err != nil{
     fmt.Println("There was an error, ", err)
@@ -57,9 +61,15 @@ func add_subtract(object *ba, addSubtract string){
   fmt.Println("Money",addSubtract, "ed: ", new_depo)
   if addSubtract =="add"{
     fmt.Println("Total Money in Account: ", deposit(object,new_depo))
+    // add transaction to history
+    prev:= "added " + strconv.Itoa(new_depo) + ","
+    object.History=append(object.History,prev)
   }else{
     fmt.Println("Money left in account: ", withdrawal(object,new_depo))
-    }
+    prev:= "subtracted " + strconv.Itoa(new_depo) + ","
+    object.History=append(object.History,prev)
+  }
+
 
 }
 
@@ -68,7 +78,9 @@ func main(){
     fmt.Println("Welcome to Bank of America")
     for{
       choices:=bufio.NewReader(os.Stdin)
-      fmt.Println("What would you like to: \n", "1. Make a deposit\n", "2. Withdrawal Cash\n", "3. View Account Info\n", "4. Pay a Bill\n", "5. Dispute a Transaction\n", "6. Logout\n")
+      fmt.Println("\nWhat would you like to do: \n",
+        "1. Make a deposit\n", "2. Withdrawal Cash\n", "3. View Account Info\n",
+        "4. Pay a Bill\n", "5. Dispute a Transaction\n", "6. Logout\n")
       decision, err:=choices.ReadString('\n')
         if err != nil{
       fmt.Println("There was an error, ", err)
@@ -86,7 +98,10 @@ func main(){
       case "2\n":
         subtracter:="subtract"
         add_subtract(obj,subtracter)
-
+      case "3\n":
+        info(obj)
+      case "6\n":
+        os.Exit(0)
       }
     }
 
