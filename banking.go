@@ -2,6 +2,7 @@ package main
 import(
   "bufio"
   "os"
+  // "io/ioutil"
   "fmt"
   "strconv"
   "strings"
@@ -14,6 +15,13 @@ type ba struct{
   Name string
 
 }
+func check(e error){
+  if e!=nil{
+    fmt.Println("There was an error...")
+    panic(e)
+  }
+}
+
 func info(bank *ba){
   fmt.Println(bank.Name)
   fmt.Println("Balance: ", bank.Balance)
@@ -26,10 +34,9 @@ func login()*ba{
     fmt.Println("Please Log In With Your Name: or Control C to exit ")
     id,err:=log_in.ReadString('\n')
 
-    if err != nil{
-      fmt.Println("There was an error, ", err)
-      continue
-    }
+    check(err)
+    // continue
+
     if id=="\n" {
       continue
     }
@@ -39,6 +46,22 @@ func login()*ba{
   }
 
 }
+
+func receipt(bank *ba){
+  //doesn't actually put info in file.
+  f,err:= os.Create("./reciept.txt")
+  check(err)
+  filey:=bufio.NewWriter(f)
+  for _, history:= range bank.History{
+    fmt.Fprintln(filey, history)
+  }
+
+  // file closes when function returns so need to add a return type
+  // defer f.Close()
+  f.Close()
+  fmt.Println("You can view the file in this directory. It is called, 'receipt.txt'")
+}
+
 func deposit(bank *ba, money int) int{
   bank.Balance +=money
   return bank.Balance
@@ -53,9 +76,7 @@ func add_subtract(object *ba, addSubtract string){
   add:=bufio.NewReader(os.Stdin)
   fmt.Println("How much money should we", addSubtract)
   depo,err:=add.ReadString('\n')
-  if err != nil{
-    fmt.Println("There was an error, ", err)
-  }
+  check(err)
   // Have to get rid of new line char from user input.
   depo = strings.Replace(depo,"\n","", -1)
   new_depo,err:= strconv.Atoi(depo)
@@ -74,6 +95,8 @@ func add_subtract(object *ba, addSubtract string){
 
 }
 
+
+
 func main(){
     obj:=login()
     fmt.Println("Welcome to Bank of America")
@@ -83,10 +106,8 @@ func main(){
         "1. Make a deposit\n", "2. Withdrawal Cash\n", "3. View Account Info\n",
         "4. Pay a Bill\n", "5. Dispute a Transaction\n", "6. Logout\n")
       decision, err:=choices.ReadString('\n')
-        if err != nil{
-      fmt.Println("There was an error, ", err)
-      continue
-        }
+      check(err)
+
 
       // switch statement, cases correspond to the previous print.
       switch decision{
@@ -96,19 +117,28 @@ func main(){
       case "1\n":
         adder:="add"
         add_subtract(obj,adder)
+        record:=bufio.NewReader(os.Stdin)
+        fmt.Println("Would you like a reciept? (y/n): ")
+        receiptDecision,err:=record.ReadString('\n')
+        check(err)
+        if receiptDecision== "y\n"{
+          receipt(obj)
+        }
+
       case "2\n":
         subtracter:="subtract"
         add_subtract(obj,subtracter)
+        fmt.Println("Would you like a reciept? ")
       case "3\n":
         info(obj)
       case "4\n":
         pay:=bufio.NewReader(os.Stdin)
-
         fmt.Println("What company Should this be payed too?")
         payCompany, err:=pay.ReadString('\n')
         payCompany,err = "", nil
         company:="subtract"
         add_subtract(obj,company)
+        fmt.Println("Would you like a reciept? ")
       case "5\n":
         fmt.Println("Bank of America is experiencing technical difficulties right now...")
         // 2 seconds
