@@ -2,7 +2,7 @@ package main
 import(
   "bufio"
   "os"
-  // "io/ioutil"
+  "io/ioutil"
   "fmt"
   "strconv"
   "strings"
@@ -46,19 +46,17 @@ func login()*ba{
   }
 
 }
-
+// write string to file that only owner has access to.
 func receipt(bank *ba){
-  //doesn't actually put info in file.
-  f,err:= os.Create("./reciept.txt")
-  check(err)
-  filey:=bufio.NewWriter(f)
+  var str string
   for _, history:= range bank.History{
-    fmt.Fprintln(filey, history)
+    str +=string(string(history))
   }
 
-  // file closes when function returns so need to add a return type
-  // defer f.Close()
-  f.Close()
+  fmt.Println(str)
+  err := ioutil.WriteFile("receipt.txt", []byte(str), 0700)
+  check(err)
+
   fmt.Println("You can view the file in this directory. It is called, 'receipt.txt'")
 }
 
