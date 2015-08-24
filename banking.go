@@ -7,6 +7,7 @@ import(
   "strconv"
   "strings"
   "time"
+  "github.com/julianweisbord/FriendBank"
 )
 
 type ba struct{
@@ -57,7 +58,7 @@ func receipt(bank *ba){
   err := ioutil.WriteFile("receipt.txt", []byte(str), 0700)
   check(err)
 
-  fmt.Println("You can view the file in this directory. It is called, 'receipt.txt'")
+  fmt.Println("You can view the file in this directory, for your protection, you will need root permissions to view it. It is called, 'receipt.txt'")
 }
 
 func deposit(bank *ba, money int) int{
@@ -85,9 +86,13 @@ func add_subtract(object *ba, addSubtract string){
     prev:= "added " + strconv.Itoa(new_depo) + ","
     object.History=append(object.History,prev)
   }else{
-    fmt.Println("Money left in account: ", withdrawal(object,new_depo))
-    prev:= "subtracted " + strconv.Itoa(new_depo) + ","
-    object.History=append(object.History,prev)
+    if new_depo>object.Balance{
+      fmt.Println("Insufficient Funds!")
+    }else{
+      fmt.Println("Money left in account: ", withdrawal(object,new_depo))
+      prev:= "subtracted " + strconv.Itoa(new_depo) + ","
+      object.History=append(object.History,prev)
+    }
   }
 
 
@@ -102,7 +107,7 @@ func main(){
       choices:=bufio.NewReader(os.Stdin)
       fmt.Println("\nWhat would you like to do: \n",
         "1. Make a deposit\n", "2. Withdrawal Cash\n", "3. View Account Info\n",
-        "4. Pay a Bill\n", "5. Dispute a Transaction\n", "6. Logout\n")
+        "4. Pay a Bill\n", "5. Dispute a Transaction\n","6. Recieve a direct deposit\n", "7. Logout\n")
       decision, err:=choices.ReadString('\n')
       check(err)
 
@@ -110,13 +115,14 @@ func main(){
       // switch statement, cases correspond to the previous print.
       switch decision{
       default:
+        fmt.Println("Incorrect input!")
         os.Exit(0)
 
       case "1\n":
         adder:="add"
         add_subtract(obj,adder)
         record:=bufio.NewReader(os.Stdin)
-        fmt.Println("Would you like a reciept? (y/n): ")
+        fmt.Println("Would you like a receipt? (y/n): ")
         receiptDecision,err:=record.ReadString('\n')
         check(err)
         if receiptDecision== "y\n"{
@@ -126,7 +132,13 @@ func main(){
       case "2\n":
         subtracter:="subtract"
         add_subtract(obj,subtracter)
-        fmt.Println("Would you like a reciept? ")
+        record:=bufio.NewReader(os.Stdin)
+        fmt.Println("Would you like a receipt(y/n)? ")
+        receiptDecision,err:=record.ReadString('\n')
+        check(err)
+        if receiptDecision== "y\n"{
+          receipt(obj)
+        }
       case "3\n":
         info(obj)
       case "4\n":
@@ -136,14 +148,36 @@ func main(){
         payCompany,err = "", nil
         company:="subtract"
         add_subtract(obj,company)
-        fmt.Println("Would you like a reciept? ")
+        record:=bufio.NewReader(os.Stdin)
+        fmt.Println("Would you like a receipt(y/n)? ")
+        receiptDecision,err:=record.ReadString('\n')
+        check(err)
+        if receiptDecision== "y\n"{
+          receipt(obj)
+        }
       case "5\n":
         fmt.Println("Bank of America is experiencing technical difficulties right now...")
         // 2 seconds
         time.Sleep(1500000000)
         continue
-
       case "6\n":
+          transaction:=FriendBank.OtherBank()
+          fmt.Println("transaction: ", transaction)
+          fmt.Println("total in account: ", deposit(obj,transaction))
+
+          new_transaction:= "added " + strconv.Itoa(transaction) + ","
+          obj.History=append(obj.History,new_transaction)
+          record:=bufio.NewReader(os.Stdin)
+          fmt.Println("Would you like a receipt(y/n)? ")
+          receiptDecision,err:=record.ReadString('\n')
+          check(err)
+          if receiptDecision== "y\n"{
+            receipt(obj)
+          }
+
+
+
+      case "7\n":
         os.Exit(0)
       }
     }
