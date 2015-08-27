@@ -7,7 +7,7 @@ import(
   "strconv"
   "strings"
   "time"
-  "github.com/julianweisbord/FriendBank"
+  "github.com/julianweisbord/banking/FriendBank"
 )
 
 type ba struct{
